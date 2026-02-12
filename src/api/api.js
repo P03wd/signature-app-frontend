@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-baseURL: import.meta.env.VITE_API_URL,
+baseURL: "https://signature-app-backend-5uvj.onrender.com",
 });
 
 API.interceptors.request.use((req) => {
