@@ -1,6 +1,5 @@
-// src/components/VerifySignature.js
 import { useState } from "react";
-import API from "../api/api"; // adjust path if needed
+import API from "../api/api";
 
 export default function VerifySignature() {
   const [docId, setDocId] = useState("");
@@ -9,7 +8,10 @@ export default function VerifySignature() {
   const [loading, setLoading] = useState(false);
 
   const handleVerify = async () => {
-    if (!docId || !signerId) {
+    const trimmedDocId = docId.trim();
+    const trimmedSignerId = signerId.trim();
+
+    if (!trimmedDocId || !trimmedSignerId) {
       setMessage("Please enter both Document ID and Signer ID.");
       return;
     }
@@ -18,10 +20,17 @@ export default function VerifySignature() {
     setMessage("");
 
     try {
-      // Call the verification API
-      const res = await API.post("/verification/verify", { docId, signerId });
+      const res = await API.post("/verification/verify", {
+        docId: trimmedDocId,
+        signerId: trimmedSignerId,
+      });
       setMessage(res.data.message || "Signature verified successfully!");
+
+      // Optional: clear inputs
+      // setDocId("");
+      // setSignerId("");
     } catch (err) {
+      console.error(err);
       setMessage(err.response?.data?.message || "Error verifying signature");
     } finally {
       setLoading(false);
@@ -57,7 +66,6 @@ export default function VerifySignature() {
   );
 }
 
-// Inline styling (optional: you can move to CSS file)
 const styles = {
   container: {
     maxWidth: "400px",
@@ -69,9 +77,7 @@ const styles = {
     boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
     fontFamily: "Arial, sans-serif",
   },
-  heading: {
-    marginBottom: "20px",
-  },
+  heading: { marginBottom: "20px" },
   input: {
     display: "block",
     width: "100%",
@@ -90,8 +96,5 @@ const styles = {
     backgroundColor: "#4CAF50",
     color: "#fff",
   },
-  message: {
-    marginTop: "15px",
-    fontWeight: "bold",
-  },
+  message: { marginTop: "15px", fontWeight: "bold" },
 };

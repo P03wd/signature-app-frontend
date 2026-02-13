@@ -1,27 +1,41 @@
 import { useEffect, useState } from "react";
 import API from "../api/api";
+import Layout from "../components/layout";
+import Upload from "../pages/upload";
+import DocumentCard from "../components/documentcard";
 
 export default function Dashboard() {
   const [docs, setDocs] = useState([]);
 
+  const fetchDocs = async () => {
+    try {
+      const res = await API.get("/documents");
+      setDocs(res.data);
+    } catch (err) {
+      console.log(err);
+      alert("Error loading documents");
+    }
+  };
+
   useEffect(() => {
-    API.get("/documents/my")
-      .then(res => setDocs(res.data))
-      .catch(() => alert("Auth error"));
+    fetchDocs();
   }, []);
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>My Documents</h2>
+    <Layout>
+      <h2>Dashboard</h2>
 
-      {docs.length === 0 && <p>No documents found</p>}
+      <Upload />
 
-      {docs.map(d => (
-        <div key={d._id} style={{ border: "1px solid gray", margin: 10, padding: 10 }}>
-          <p><b>Name:</b> {d.originalName}</p>
-          <p><b>Status:</b> {d.status}</p>
-        </div>
-      ))}
-    </div>
+      <div style={{ marginTop: 20 }}>
+        {docs.map(doc => (
+          <DocumentCard key={doc._id} doc={doc} />
+        ))}
+      </div>
+    </Layout>
   );
 }
+<Upload refresh={fetchDocs} />
+{docs.map(doc => (
+  <DocumentCard key={doc._id} doc={doc} refresh={fetchDocs}/>
+))}

@@ -1,38 +1,54 @@
 // frontend/src/pages/AuditLogs.jsx
 import { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../api/api";
 
 function AuditLogs({ documentId }) {
   const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    axios.get(`https://your-backend-url.com/api/audit/${documentId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    .then(res => setLogs(res.data))
-    .catch(err => console.error(err));
+    if (!documentId) return;
+
+    const fetchLogs = async () => {
+      try {
+        const res = await API.get(`/audit/${documentId}`);
+        setLogs(res.data);
+      } catch (err) {
+        console.error("Error fetching logs:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLogs();
   }, [documentId]);
+
+  if (loading) return <p>Loading audit logs...</p>;
+  if (logs.length === 0) return <p>No audit logs available.</p>;
 
   return (
     <div>
-      <h2>Audit Logs</h2>
-      <table className="table-auto border-collapse border border-gray-400">
+      <h4>Audit Logs</h4>
+
+      <table style={{ borderCollapse: "collapse", width: "100%" }}>
         <thead>
           <tr>
-            <th className="border px-2 py-1">User</th>
-            <th className="border px-2 py-1">Action</th>
-            <th className="border px-2 py-1">Timestamp</th>
-            <th className="border px-2 py-1">IP</th>
+            <th style={header}>User</th>
+            <th style={header}>Action</th>
+            <th style={header}>Timestamp</th>
+            <th style={header}>IP Address</th>
           </tr>
         </thead>
+
         <tbody>
           {logs.map(log => (
             <tr key={log._id}>
-              <td className="border px-2 py-1">{log.userId.name}</td>
-              <td className="border px-2 py-1">{log.action}</td>
-              <td className="border px-2 py-1">{new Date(log.timestamp).toLocaleString()}</td>
-              <td className="border px-2 py-1">{log.ip}</td>
+              <td style={cell}>{log.userId?.name || "Unknown"}</td>
+              <td style={cell}>{log.action}</td>
+              <td style={cell}>
+                {new Date(log.timestamp).toLocaleString()}
+              </td>
+              <td style={cell}>{log.ip || "-"}</td>
             </tr>
           ))}
         </tbody>
@@ -40,5 +56,18 @@ function AuditLogs({ documentId }) {
     </div>
   );
 }
+
+// styles
+const header = {
+  border: "1px solid #ccc",
+  padding: "8px",
+  background: "#f2f2f2",
+  fontWeight: "bold"
+};
+
+const cell = {
+  border: "1px solid #ccc",
+  padding: "8px"
+};
 
 export default AuditLogs;
