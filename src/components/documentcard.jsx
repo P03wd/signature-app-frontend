@@ -3,9 +3,8 @@ import API from "../api/api";
 export default function DocumentCard({ doc, refresh }) {
 
   const downloadFile = () => {
-    window.open(`http://localhost:5000/${doc.filePath}`, "_blank");
-  };
-
+  window.open(`${import.meta.env.VITE_API_URL}/${doc.filePath}`, "_blank");
+};
   const deleteFile = async () => {
     if (!window.confirm("Delete this document?")) return;
 
