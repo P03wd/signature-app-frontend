@@ -1,7 +1,7 @@
 import { useState } from "react";
 import API from "../api/api";
 
-export default function VerifySignature() {
+export default function verifysignature() {
   const [docId, setDocId] = useState("");
   const [signerId, setSignerId] = useState("");
   const [message, setMessage] = useState("");
