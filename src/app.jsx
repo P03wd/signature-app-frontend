@@ -10,8 +10,8 @@ function DocumentView() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+<BrowserRouter future={{ v7_relativeSplatPath: true }}>
+<Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/document/:id" element={<DocumentView />} />

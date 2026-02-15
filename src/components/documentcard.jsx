@@ -1,22 +1,21 @@
 import React from "react";
-import API from "../api/api"; // axios instance
+import API from "../api/api";
 
 const BASE_URL = import.meta.env.VITE_API_URL.replace("/api", "");
 
 export default function DocumentCard({ doc, refresh }) {
-  // download file
+
+  // DOWNLOAD FILE
   const downloadFile = () => {
     if (!doc?.filePath) {
       alert("File path not found");
       return;
     }
 
-    // window.open(`http://localhost:5000/${doc.filePath}`, "_blank");
     window.open(`${BASE_URL}/${doc.filePath}`, "_blank");
-
   };
 
-  // delete file
+  // DELETE FILE
   const deleteFile = async () => {
     const confirmDelete = window.confirm(
       `Are you sure you want to delete "${doc.originalName}" ?`
@@ -26,12 +25,23 @@ export default function DocumentCard({ doc, refresh }) {
 
     try {
       await API.delete(`/documents/${doc._id}`);
-
       alert("Document deleted successfully");
-      refresh(); // reload list after delete
+      refresh();
     } catch (error) {
       console.error(error);
       alert("Failed to delete document");
+    }
+  };
+
+  // SIGN DOCUMENT
+  const signDocument = async () => {
+    try {
+      await API.post(`/documents/sign/${doc._id}`);
+      alert("Document signed successfully");
+      refresh();
+    } catch (err) {
+      alert("Signing failed");
+      console.error(err);
     }
   };
 
@@ -51,12 +61,28 @@ export default function DocumentCard({ doc, refresh }) {
         <button style={styles.deleteBtn} onClick={deleteFile}>
           Delete
         </button>
+
+        <button style={styles.signBtn} onClick={signDocument}>
+          Sign
+        </button>
+
+        {doc.signedFilePath && (
+          <button
+            style={styles.viewBtn}
+            onClick={() =>
+              window.open(`${BASE_URL}/${doc.signedFilePath}`, "_blank")
+            }
+          >
+            View Signed
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
 /* ---------- Styles ---------- */
+
 const styles = {
   card: {
     border: "1px solid #ddd",
@@ -93,6 +119,22 @@ const styles = {
     borderRadius: "6px",
     cursor: "pointer",
     backgroundColor: "#f44336",
+    color: "white",
+  },
+  signBtn: {
+    padding: "8px 14px",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    backgroundColor: "#2196F3",
+    color: "white",
+  },
+  viewBtn: {
+    padding: "8px 14px",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    backgroundColor: "#9C27B0",
     color: "white",
   },
 };
