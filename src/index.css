@@ -1,42 +1,51 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* links */
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: none;
-}
-a:hover {
-  color: #535bf2;
-}
-
-/* BODY FIX */
-body {
+/* =================== RESET =================== */
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* =================== ROOT =================== */
+:root {
+  --primary-color: #4caf50;
+  --primary-hover: #43a047;
+  --text-color: #242424;
+  --bg-color: #f4f7fb;
+  --card-bg: #fff;
+  --input-border: #ccc;
+  --input-focus: #4caf50;
+  --error-color: #f44336;
+  --success-color: #4caf50;
+}
+
+/* =================== BODY =================== */
+body {
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 16px;
+  line-height: 1.5;
+  cursor: default;
 }
 
-/* headings */
-h1 {
-  font-size: 2.2rem;
-  line-height: 1.2;
+/* =================== CONTAINER =================== */
+#root,
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
 }
 
-/* buttons */
+/* =================== HEADINGS =================== */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-color);
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+/* =================== BUTTONS =================== */
 button {
   border-radius: 8px;
   border: none;
@@ -44,14 +53,15 @@ button {
   font-size: 1rem;
   font-weight: 500;
   font-family: inherit;
-  background-color: #4CAF50;
+  background-color: var(--primary-color);
   color: white;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.2s ease;
 }
 
 button:hover {
-  background-color: #43a047;
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
 }
 
 button:disabled {
@@ -59,21 +69,114 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* container helper */
-.container {
+/* =================== INPUTS & SELECT =================== */
+input, select, textarea {
   width: 100%;
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
+  padding: 10px;
+  margin: 8px 0 15px;
+  border-radius: 6px;
+  border: 1px solid var(--input-border);
+  font-size: 14px;
+  font-family: inherit;
 }
 
-/* light mode */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--input-focus);
+}
+
+/* =================== CARDS =================== */
+.card {
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
+}
+
+/* =================== NAVBAR =================== */
+.navbar {
+  background: var(--card-bg);
+  padding: 15px 20px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+}
+
+.nav-links a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: var(--primary-color);
+}
+
+/* =================== TABLES =================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* =================== MESSAGES =================== */
+.success {
+  color: var(--success-color);
+  font-weight: bold;
+}
+
+.error {
+  color: var(--error-color);
+  font-weight: bold;
+}
+
+/* =================== LINKS =================== */
+a {
+  font-weight: 500;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--primary-hover);
+}
+
+/* =================== MEDIA QUERIES =================== */
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    --text-color: #213547;
+    --bg-color: #ffffff;
+    --card-bg: #fff;
   }
 }
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-color: #f0f0f0;
+    --bg-color: #242424;
+    --card-bg: #333;
+  }
+}

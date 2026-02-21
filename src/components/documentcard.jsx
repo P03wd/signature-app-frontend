@@ -1,140 +1,105 @@
-import React from "react";
 import API from "../api/api";
-
-const BASE_URL = import.meta.env.VITE_API_URL.replace("/api", "");
+import { useState } from "react";
 
 export default function DocumentCard({ doc, refresh }) {
+  const [email, setEmail] = useState("");
 
-  // DOWNLOAD FILE
+  // Backend base URL (without /api)
+  const BASE_URL = import.meta.env.VITE_API_URL?.replace("/api", "");
+
+  // Auth token
+  const token = localStorage.getItem("token");
+
+  /* ================= DOWNLOAD ORIGINAL ================= */
   const downloadFile = () => {
-    if (!doc?.filePath) {
-      alert("File path not found");
-      return;
-    }
-
+    if (!doc.filePath) return alert("File not found");
     window.open(`${BASE_URL}/${doc.filePath}`, "_blank");
   };
 
-  // DELETE FILE
-  const deleteFile = async () => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete "${doc.originalName}" ?`
-    );
+  /* ================= DOWNLOAD SIGNED ================= */
+  const downloadSigned = () => {
+    if (!doc.signedFilePath) return alert("Document not signed yet");
+    window.open(`${BASE_URL}/${doc.signedFilePath}`, "_blank");
+  };
 
-    if (!confirmDelete) return;
+  /* ================= DELETE DOCUMENT ================= */
+  const deleteFile = async () => {
+    if (!window.confirm("Delete this document?")) return;
 
     try {
-      await API.delete(`/documents/${doc._id}`);
-      alert("Document deleted successfully");
+      await API.delete(`/documents/${doc._id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      alert("Document deleted");
       refresh();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to delete document");
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      alert(err.response?.data?.message || "Delete failed");
     }
   };
 
-  // SIGN DOCUMENT
-  const signDocument = async () => {
+  /* ================= INVITE USER ================= */
+  const inviteUser = async () => {
+    if (!email) return alert("Enter email");
+
     try {
-      await API.post(`/documents/sign/${doc._id}`);
-      alert("Document signed successfully");
-      refresh();
+      const res = await API.post(
+        `/invite/${doc._id}`,
+        { email },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      alert(res.data.link || "Invite sent");
+      setEmail("");
     } catch (err) {
-      alert("Signing failed");
-      console.error(err);
+      console.error(err.response?.data || err.message);
+      alert(err.response?.data?.message || "Invite failed");
     }
   };
 
   return (
-    <div style={styles.card}>
-      <h3 style={styles.title}>{doc.originalName}</h3>
+    <div
+      style={{
+        border: "1px solid #ddd",
+        padding: "15px",
+        margin: "10px",
+        borderRadius: "10px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+      }}
+    >
+      <h3>{doc.originalName}</h3>
 
-      <p style={styles.info}>
-        Uploaded: {new Date(doc.createdAt).toLocaleString()}
+      <p>
+        <b>Status:</b>{" "}
+        <span style={{ color: doc.status === "Signed" ? "green" : "orange" }}>
+          {doc.status}
+        </span>
       </p>
 
-      <div style={styles.buttons}>
-        <button style={styles.downloadBtn} onClick={downloadFile}>
-          Download
-        </button>
-
-        <button style={styles.deleteBtn} onClick={deleteFile}>
-          Delete
-        </button>
-
-        <button style={styles.signBtn} onClick={signDocument}>
-          Sign
-        </button>
-
-        {doc.signedFilePath && (
-          <button
-            style={styles.viewBtn}
-            onClick={() =>
-              window.open(`${BASE_URL}/${doc.signedFilePath}`, "_blank")
-            }
-          >
-            View Signed
-          </button>
-        )}
+      <div style={{ marginBottom: "10px" }}>
+        <button onClick={downloadFile}>Download</button>{" "}
+        <button onClick={downloadSigned}>Signed PDF</button>{" "}
+        <button onClick={deleteFile}>Delete</button>
       </div>
+
+      <hr />
+
+      <h4>Invite Signer</h4>
+
+      <input
+        placeholder="Enter email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        style={{
+          padding: "6px",
+          marginRight: "8px",
+          borderRadius: "6px",
+          border: "1px solid #ccc"
+        }}
+      />
+
+      <button onClick={inviteUser}>Send Invite</button>
     </div>
   );
 }
-
-/* ---------- Styles ---------- */
-
-const styles = {
-  card: {
-    border: "1px solid #ddd",
-    borderRadius: "10px",
-    padding: "15px",
-    marginBottom: "15px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-    backgroundColor: "#fff",
-  },
-  title: {
-    margin: 0,
-    fontSize: "18px",
-  },
-  info: {
-    fontSize: "13px",
-    color: "#666",
-  },
-  buttons: {
-    marginTop: "10px",
-    display: "flex",
-    gap: "10px",
-  },
-  downloadBtn: {
-    padding: "8px 14px",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    backgroundColor: "#4CAF50",
-    color: "white",
-  },
-  deleteBtn: {
-    padding: "8px 14px",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    backgroundColor: "#f44336",
-    color: "white",
-  },
-  signBtn: {
-    padding: "8px 14px",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    backgroundColor: "#2196F3",
-    color: "white",
-  },
-  viewBtn: {
-    padding: "8px 14px",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    backgroundColor: "#9C27B0",
-    color: "white",
-  },
-};

@@ -14,27 +14,26 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) {
-      return setMessage("All fields required");
+    if (!email.trim() || !password) {
+      return setMessage("All fields are required");
     }
 
     try {
       setLoading(true);
       setMessage("");
 
-      const res = await API.post("/auth/login", { email, password });
+      const res = await API.post("/auth/login", { email: email.trim(), password });
 
       // Save token
       localStorage.setItem("token", res.data.token);
-
       setMessage("Login successful ✓");
 
       // redirect after short delay
       setTimeout(() => {
         navigate("/dashboard");
       }, 800);
-
     } catch (err) {
+      console.error(err);
       setMessage(err.response?.data?.message || "Invalid credentials");
     } finally {
       setLoading(false);
@@ -61,7 +60,7 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button style={styles.button} disabled={loading}>
+        <button style={{ ...styles.button, opacity: loading ? 0.7 : 1 }} disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
 
@@ -77,7 +76,8 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "#f4f6f9"
+    background: "#f4f6f9",
+    fontFamily: "Arial, sans-serif",
   },
   card: {
     padding: 30,
@@ -85,14 +85,15 @@ const styles = {
     background: "#fff",
     boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
     width: 320,
-    textAlign: "center"
+    textAlign: "center",
   },
   input: {
     width: "100%",
     padding: 10,
     marginBottom: 15,
     borderRadius: 6,
-    border: "1px solid #ccc"
+    border: "1px solid #ccc",
+    fontSize: 14,
   },
   button: {
     width: "100%",
@@ -102,10 +103,12 @@ const styles = {
     background: "#007bff",
     color: "#fff",
     fontWeight: "bold",
-    cursor: "pointer"
+    cursor: "pointer",
+    transition: "opacity 0.3s",
   },
   message: {
     marginTop: 15,
-    fontWeight: "bold"
-  }
+    fontWeight: "bold",
+    color: "#333",
+  },
 };

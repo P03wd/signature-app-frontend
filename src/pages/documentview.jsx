@@ -1,4 +1,3 @@
-// frontend/src/pages/DocumentView.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import API from "../api/api";
@@ -11,12 +10,10 @@ export default function DocumentView() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  // Fetch document details
   const fetchDoc = async () => {
     try {
-      const res = await API.get("/documents");
-      const found = res.data.find(d => d._id === id);
-      setDoc(found);
+      const res = await API.get(`/documents/${id}`); // fetch single document
+      setDoc(res.data);
     } catch (err) {
       console.error(err);
       setMessage("Failed to load document");
@@ -29,28 +26,38 @@ export default function DocumentView() {
     fetchDoc();
   }, [id]);
 
-  // Invite signer
+  // Invite signer by email
   const invite = async () => {
-    if (!inviteEmail) return setMessage("Enter email");
+    if (!inviteEmail.trim()) return setMessage("Enter email");
 
     try {
-      await API.post(`/documents/invite/${id}`, {
-        email: inviteEmail
+      const res = await API.post(`/documents/${id}/invite`, {
+        email: inviteEmail.trim(),
       });
 
-      setMessage("User invited successfully");
+      setMessage("Invite sent successfully! Share this link:\n" + res.data.link);
       setInviteEmail("");
       fetchDoc();
     } catch (err) {
+      console.error(err);
       setMessage(err.response?.data?.message || "Invite failed");
     }
   };
 
-  // Sign document
+  // Sign document (for testing, all users can sign)
   const sign = async () => {
     try {
-      await API.post(`/documents/sign/${id}`);
-      setMessage("Document signed successfully");
+      const signatureData = prompt("Enter a dummy signature (base64 or any text):");
+      if (!signatureData) return;
+
+      await API.post(`/documents/sign/${id}`, {
+        signatureData,
+        pageNumber: 1,
+        x: 50,
+        y: 50,
+      });
+
+      setMessage("Document signed successfully!");
       fetchDoc();
     } catch (err) {
       setMessage(err.response?.data?.message || "Signing failed");
@@ -66,13 +73,13 @@ export default function DocumentView() {
 
       <p><b>Name:</b> {doc.originalName}</p>
       <p><b>Status:</b> {doc.status}</p>
-      <p><b>Owner:</b> {doc.owner?.name}</p>
+      <p><b>Owner:</b> {doc.owner?.name || "Unknown"}</p>
 
       {/* Allowed Signers */}
       <div style={styles.section}>
         <h4>Allowed Signers</h4>
-        {doc.allowedSigners.length === 0 && <p>No signers invited</p>}
-        {doc.allowedSigners.map(u => (
+        {doc.allowedSigners?.length === 0 && <p>No signers invited</p>}
+        {doc.allowedSigners?.map(u => (
           <p key={u._id}>• {u.name} ({u.email})</p>
         ))}
       </div>
@@ -104,7 +111,7 @@ export default function DocumentView() {
   );
 }
 
-// styles
+// ---------------- STYLES ----------------
 const styles = {
   container: {
     maxWidth: 600,
@@ -113,16 +120,15 @@ const styles = {
     border: "1px solid #ddd",
     borderRadius: 12,
     boxShadow: "0px 2px 10px rgba(0,0,0,0.1)",
-    fontFamily: "Arial"
+    fontFamily: "Arial",
   },
-  section: {
-    marginTop: 20
-  },
+  section: { marginTop: 20 },
   input: {
     padding: 10,
     marginRight: 10,
     borderRadius: 6,
-    border: "1px solid #ccc"
+    border: "1px solid #ccc",
+    width: "60%",
   },
   button: {
     padding: "10px 16px",
@@ -130,7 +136,7 @@ const styles = {
     border: "none",
     background: "#007bff",
     color: "#fff",
-    cursor: "pointer"
+    cursor: "pointer",
   },
   signBtn: {
     padding: "10px 16px",
@@ -138,10 +144,11 @@ const styles = {
     border: "none",
     background: "#28a745",
     color: "#fff",
-    cursor: "pointer"
+    cursor: "pointer",
   },
   message: {
     marginTop: 20,
-    fontWeight: "bold"
-  }
+    fontWeight: "bold",
+    whiteSpace: "pre-wrap",
+  },
 };

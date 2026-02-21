@@ -1,18 +1,15 @@
 import { useState } from "react";
 import API from "../api/api";
 
-export default function verifysignature() {
+export default function VerifySignature() {
   const [docId, setDocId] = useState("");
-  const [signerId, setSignerId] = useState("");
+  const [signatureData, setSignatureData] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleVerify = async () => {
-    const trimmedDocId = docId.trim();
-    const trimmedSignerId = signerId.trim();
-
-    if (!trimmedDocId || !trimmedSignerId) {
-      setMessage("Please enter both Document ID and Signer ID.");
+    if (!docId.trim() || !signatureData.trim()) {
+      setMessage("Please enter both Document ID and Signature data.");
       return;
     }
 
@@ -21,14 +18,14 @@ export default function verifysignature() {
 
     try {
       const res = await API.post("/verification/verify", {
-        docId: trimmedDocId,
-        signerId: trimmedSignerId,
+        documentId: docId.trim(),
+        signatureData: signatureData.trim(),
       });
-      setMessage(res.data.message || "Signature verified successfully!");
 
-      // Optional: clear inputs
-      // setDocId("");
-      // setSignerId("");
+      setMessage(
+        res.data.message + 
+        ` Signed by: ${res.data.signature.user?.name || res.data.signature.user?.email || "Unknown"}`
+      );
     } catch (err) {
       console.error(err);
       setMessage(err.response?.data?.message || "Error verifying signature");
@@ -49,15 +46,18 @@ export default function verifysignature() {
         style={styles.input}
       />
 
-      <input
-        type="text"
-        placeholder="Signer ID"
-        value={signerId}
-        onChange={(e) => setSignerId(e.target.value)}
-        style={styles.input}
+      <textarea
+        placeholder="Paste Signature Data (Base64)"
+        value={signatureData}
+        onChange={(e) => setSignatureData(e.target.value)}
+        style={{ ...styles.input, height: "100px" }}
       />
 
-      <button onClick={handleVerify} style={styles.button} disabled={loading}>
+      <button
+        onClick={handleVerify}
+        style={{ ...styles.button, opacity: loading ? 0.7 : 1 }}
+        disabled={loading}
+      >
         {loading ? "Verifying..." : "Verify"}
       </button>
 
@@ -76,6 +76,7 @@ const styles = {
     textAlign: "center",
     boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
     fontFamily: "Arial, sans-serif",
+    backgroundColor: "#fff",
   },
   heading: { marginBottom: "20px" },
   input: {
@@ -95,6 +96,7 @@ const styles = {
     border: "none",
     backgroundColor: "#4CAF50",
     color: "#fff",
+    transition: "opacity 0.3s",
   },
-  message: { marginTop: "15px", fontWeight: "bold" },
+  message: { marginTop: "15px", fontWeight: "bold", color: "#333" },
 };
