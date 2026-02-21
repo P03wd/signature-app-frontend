@@ -88,7 +88,7 @@ export default function DocumentCard({ doc, refresh }) {
       <h4>Invite Signer</h4>
 
       <input
-        placeholder="Enter your email Id"
+        placeholder="Enter Your Email Id"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         style={{
