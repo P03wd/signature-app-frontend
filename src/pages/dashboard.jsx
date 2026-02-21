@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import API from "../api/api";
 import Layout from "../components/layout";
-import Upload from "../pages/upload";
-import DocumentCard from "../components/DocumentCard";
+import Upload from "./upload";
+import DocumentCard from "../components/documentcard";
 
 export default function Dashboard() {
   const [docs, setDocs] = useState([]);

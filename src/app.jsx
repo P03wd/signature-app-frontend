@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/login";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard";
 import VerifySignature from "./components/verifysignature";
 import PublicSign from "./pages/publicsign";
 import DocumentView from "./pages/documentview";
