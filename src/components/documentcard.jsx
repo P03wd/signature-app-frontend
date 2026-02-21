@@ -80,7 +80,7 @@ export default function DocumentCard({ doc, refresh }) {
       <div style={{ marginBottom: "10px" }}>
         <button onClick={downloadFile}>Download</button>{" "}
         <button onClick={downloadSigned}>Signed PDF</button>{" "}
-        <button onClick={deleteFile}>Delete</button>
+        <button onClick={deleteFile}>Delete</button> 
       </div>
 
       <hr />
@@ -88,7 +88,7 @@ export default function DocumentCard({ doc, refresh }) {
       <h4>Invite Signer</h4>
 
       <input
-        placeholder="Enter email"
+        placeholder="Enter your email Id"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         style={{
